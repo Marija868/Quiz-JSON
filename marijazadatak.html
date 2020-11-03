@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz JSON - Marija</title>
+</head>
+<body>
+
+    <div id="container" style="border: solid 1px;"></div>
+
+<script>
+
+fetch("quiz.json").then(function (response){ 
+
+    if (response.status !==200){
+        throw Error("Error while fatching data");
+    }
+    return response.json();
+
+}).then (function(data){
+
+    var container = document.getElementById("container");
+
+    for (var key in data.quiz){ 
+
+        let p = document.createElement("p"); 
+        let question = document.createTextNode(data.quiz[key].question); 
+        p.appendChild(question);
+        container.appendChild(p);
+        p.style.fontWeight = "bold";
+        p.style.fontSize = "20px";
+
+    data.quiz[key].options.forEach (function(value,index){
+
+        let option = document.createElement("input");
+        option.setAttribute("type", "radio");
+        option.setAttribute("name", key);
+        option.setAttribute("value", index);
+        
+        option.addEventListener("change", function(event){ 
+            saveToLocalStorage(event.target.name, event.target.value); 
+    })
+        container.appendChild(option); 
+        let label = document.createElement("label");
+        let text = document.createTextNode(value);
+        label.appendChild(text); 
+        container.appendChild(label);
+        let breakPoint = document.createElement("br");
+        container.appendChild(breakPoint);
+        container.style.width = "700px"
+    })
+    }
+
+}).then(function(){
+
+    var save = localStorage.getItem("answer");
+
+    if (save != null){
+        var answers = JSON.parse(save);
+
+    for (var key in answers ){
+        let option = document.getElementsByName(key);
+        
+    for (var i = 0; i < option.length; i++){
+        if (option[i].value == answers[key]){
+        option[i].checked = true
+    }
+    }
+    }
+    }
+})
+
+    function saveToLocalStorage(name,value){
+        var save = localStorage.getItem("answer");
+        var answerSS = save === null ? {} : JSON.parse(save);
+        answerSS[name] = value;
+        localStorage.setItem("answer", JSON.stringify(answerSS));
+    }
+
+</script>
+
+</body>
+</html>
